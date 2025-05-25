@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // import Link here
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext'; // adjust path if needed
 
 function Login() {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('student');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleLogin = (e) => {
     e.preventDefault();
-
     const fakeToken = 'sample_jwt_token_123';
     const user = { email, role, token: fakeToken };
-    localStorage.setItem('user', JSON.stringify(user));
+    login(user);
     navigate('/');
   };
 
@@ -43,11 +44,6 @@ function Login() {
         </select>
         <button type="submit" style={styles.button}>Login</button>
       </form>
-
-      {/* Registration link */}
-      <p style={{ marginTop: '20px' }}>
-        Don't have an account? <Link to="/register">Register here</Link>
-      </p>
     </div>
   );
 }
@@ -77,4 +73,4 @@ const styles = {
   }
 };
 
-export default Login;
+export default Login; // ✅ Make sure this line exists

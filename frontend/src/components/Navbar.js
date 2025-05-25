@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext'; // adjust path as needed
 
-function Navbar({ role }) {
+function Navbar() {
   const navigate = useNavigate();
+  const { role, logout } = useContext(AuthContext);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    logout();
     navigate('/login');
   };
 
