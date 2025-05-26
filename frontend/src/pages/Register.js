@@ -1,86 +1,33 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useContext } from 'react';
+import API from '../axios';
+import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-function Register() {
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState('student');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+const Register = () => {
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'student' });
 
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', {
-        email,
-        password,
-        role
-      });
-
-      setMessage(res.data.message);
-      navigate('/login');
-    } catch (err) {
-      setMessage(err.response?.data?.message || 'Registration failed');
-    }
+    const res = await API.post('/auth/register', form);
+    login(res.data);
+    navigate(form.role === 'admin' ? '/admin' : '/student');
   };
 
   return (
-    <div style={styles.container}>
+    <form onSubmit={handleSubmit}>
       <h2>Register</h2>
-      <form onSubmit={handleRegister} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
-        <select value={role} onChange={(e) => setRole(e.target.value)} style={styles.input}>
-          <option value="student">Student</option>
-          <option value="faculty">Faculty</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button type="submit" style={styles.button}>Register</button>
-      </form>
-      {message && <p>{message}</p>}
-    </div>
+      <input placeholder="Name" onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      <input placeholder="Email" onChange={(e) => setForm({ ...form, email: e.target.value })} />
+      <input type="password" placeholder="Password" onChange={(e) => setForm({ ...form, password: e.target.value })} />
+      <select onChange={(e) => setForm({ ...form, role: e.target.value })}>
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit">Register</button>
+    </form>
   );
-}
-
-const styles = {
-  container: {
-    padding: '40px',
-    textAlign: 'center'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-    maxWidth: '300px',
-    margin: 'auto'
-  },
-  input: {
-    padding: '10px',
-    fontSize: '16px'
-  },
-  button: {
-    padding: '10px',
-    fontSize: '16px',
-    backgroundColor: '#28a745',
-    color: '#fff',
-    border: 'none'
-  }
 };
 
 export default Register;

@@ -1,9 +1,19 @@
-const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
-const classroomSchema = new mongoose.Schema({
-  roomNumber: { type: String, required: true },
-  building: { type: String },
-  capacity: { type: Number },
-});
+exports.authMiddleware = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ message: "Access Denied. No token." });
 
-module.exports = mongoose.model('Classroom', classroomSchema);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(400).json({ message: "Invalid Token" });
+  }
+};
+
+exports.adminOnly = (req, res, next) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ message: "Access forbidden" });
+  next();
+};

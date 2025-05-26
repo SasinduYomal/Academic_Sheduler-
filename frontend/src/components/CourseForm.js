@@ -1,43 +1,57 @@
-import React, { useState } from 'react';
-import API from '../api/api';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function CourseForm({ existingCourse, onSuccess }) {
-  const [code, setCode] = useState(existingCourse ? existingCourse.code : '');
-  const [title, setTitle] = useState(existingCourse ? existingCourse.title : '');
-  const [department, setDepartment] = useState(existingCourse ? existingCourse.department : '');
+const CourseForm = ({ selectedCourse, onSuccess, onCancel }) => {
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    if (selectedCourse) {
+      setName(selectedCourse.name);
+    }
+  }, [selectedCourse]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      if (existingCourse) {
-        await API.put(`/courses/${existingCourse._id}`, { code, title, department });
+      if (selectedCourse) {
+        await axios.put(`/api/course/${selectedCourse._id}`, { name });
       } else {
-        await API.post('/courses', { code, title, department });
+        await axios.post('/api/course', { name });
       }
+      setName('');
       onSuccess();
-    } catch (error) {
-      console.error(error);
-      alert('Failed to save course.');
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Code:</label>
-        <input value={code} onChange={e => setCode(e.target.value)} required />
+    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow">
+      <h2 className="text-xl font-semibold mb-2">{selectedCourse ? 'Edit Course' : 'Add Course'}</h2>
+      <input
+        className="border p-2 w-full mb-3"
+        placeholder="Course Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+      />
+      <div className="flex gap-2">
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+          {selectedCourse ? 'Update' : 'Add'}
+        </button>
+        {selectedCourse && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="bg-gray-300 text-black px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+        )}
       </div>
-      <div>
-        <label>Title:</label>
-        <input value={title} onChange={e => setTitle(e.target.value)} required />
-      </div>
-      <div>
-        <label>Department:</label>
-        <input value={department} onChange={e => setDepartment(e.target.value)} />
-      </div>
-      <button type="submit">{existingCourse ? 'Update' : 'Add'} Course</button>
     </form>
   );
-}
+};
 
 export default CourseForm;

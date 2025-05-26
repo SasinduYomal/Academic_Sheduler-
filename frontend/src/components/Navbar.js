@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext'; // adjust path as needed
+import { AuthContext } from '../context/AuthContext';
 
-function Navbar() {
+const Navbar = () => {
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { role, logout } = useContext(AuthContext);
 
   const handleLogout = () => {
     logout();
@@ -12,52 +13,39 @@ function Navbar() {
   };
 
   return (
-    <nav style={styles.navbar}>
-      <h2 style={styles.logo}>Academic Scheduler</h2>
-      <div style={styles.links}>
-        <Link to="/" style={styles.link}>Home</Link>
-        <Link to="/courses" style={styles.link}>Courses</Link>
-        {role === 'admin' && <Link to="/admin" style={styles.link}>Admin Panel</Link>}
-        {role === 'faculty' && <Link to="/faculty" style={styles.link}>Faculty</Link>}
-        {role === 'student' && <Link to="/schedule" style={styles.link}>My Schedule</Link>}
-        {!role && <Link to="/register" style={styles.link}>Register</Link>}
-        {!role && <Link to="/login" style={styles.link}>Login</Link>}
-        {role && <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>}
-      </div>
-    </nav>
-  );
-}
+    <AppBar position="static" color="primary">
+      <Toolbar>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          Academic Scheduler
+        </Typography>
 
-const styles = {
-  navbar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '15px 30px',
-    backgroundColor: '#007bff',
-    color: '#fff',
-    flexWrap: 'wrap'
-  },
-  logo: {
-    margin: 0
-  },
-  links: {
-    display: 'flex',
-    gap: '15px',
-    flexWrap: 'wrap'
-  },
-  link: {
-    color: '#fff',
-    textDecoration: 'none',
-    fontSize: '16px'
-  },
-  logoutBtn: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: '#fff',
-    fontSize: '16px',
-    cursor: 'pointer'
-  }
+        {user && (
+          <>npm install @fullcalendar/core
+
+            <Button color="inherit" component={Link} to="/">Home</Button>
+            {user.role === 'admin' && (
+              <>
+                <Button color="inherit" component={Link} to="/admin">Dashboard</Button>
+              </>
+            )}
+            {user.role === 'student' && (
+              <>
+                <Button color="inherit" component={Link} to="/student">Dashboard</Button>
+              </>
+            )}
+            <Button color="inherit" onClick={handleLogout}>Logout</Button>
+          </>
+        )}
+
+        {!user && (
+          <>
+            <Button color="inherit" component={Link} to="/login">Login</Button>
+            <Button color="inherit" component={Link} to="/register">Register</Button>
+          </>
+        )}
+      </Toolbar>
+    </AppBar>
+  );
 };
 
 export default Navbar;
